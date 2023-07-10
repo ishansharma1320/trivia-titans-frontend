@@ -1,40 +1,96 @@
-import TextField from '@mui/material/TextField';
-import { Button } from '@mui/material';
-import { useRef, useCallback } from "react";
-import sharedCSSModule from '../shared/css/shared.module.css';
-// https://levelup.gitconnected.com/react-forms-usestate-vs-useref-5cb584cc19fd
+import { useState } from 'react';
+import { Stepper, Step, StepLabel, Button } from '@mui/material';
 
-export default function ForgotPasswordForm() {
+const steps = ['Step 1', 'Step 2', 'Step 3']; // Add your desired steps here
 
-  const passwordInputElementReference: any = useRef(null);
-  const confirmPasswordInputElementReference: any = useRef(null);
-  
-  const formHandler = useCallback(
-    () => (event: any) => {
-      event.preventDefault();
+const ForgotPasswordForm = () => {
+  const [activeStep, setActiveStep] = useState(0);
+  const [formData, setFormData] = useState({}); // Store form data
 
-      const data = {
-        
-        
-        password: passwordInputElementReference.current?.value,
-        confirmPassword: confirmPasswordInputElementReference.current?.value,
-        
-      };
+  const handleNext = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
 
-      console.log(data);
-    },
-    []
-  );
-  
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  const handleStepSubmit = () => {
+    console.log(formData); // Log form data on submission
+  };
+
+  const handleFormChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
+  };
+
+  const renderStepContent = (step) => {
+    switch (step) {
+      case 0:
+        return (
+          <input
+            type="text"
+            name="field1"
+            value={formData['field1'] || ''}
+            onChange={handleFormChange}
+            placeholder="Field 1"
+          />
+        );
+      case 1:
+        return (
+          <input
+            type="text"
+            name="field2"
+            value={formData['field2'] || ''}
+            onChange={handleFormChange}
+            placeholder="Field 2"
+          />
+        );
+      case 2:
+        return (
+          <input
+            type="text"
+            name="field3"
+            value={formData['field3'] || ''}
+            onChange={handleFormChange}
+            placeholder="Field 3"
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
-    
-      <>
-       <form onSubmit={formHandler()} className={sharedCSSModule.login_form}>
-        <TextField inputRef={passwordInputElementReference} sx={{mb: 2}} type='password' fullWidth label="Password" id="fullWidth" />
-        <TextField inputRef={confirmPasswordInputElementReference} sx={{mb: 2}} type='password' fullWidth label="Confirm Password" id="fullWidth" />
-        <Button  sx={{mb: 2,py:1}} type='submit' variant="contained">Submit Password</Button>
-       </form>
-       </>
-      
-    );
-  }
+    <div>
+      <Stepper activeStep={activeStep} alternativeLabel>
+        {steps.map((label) => (
+          <Step key={label}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+
+      <div>
+        <div>{renderStepContent(activeStep)}</div>
+
+        <div>
+          <Button disabled={activeStep === 0} onClick={handleBack}>
+            Back
+          </Button>
+          {activeStep < steps.length - 1 ? (
+          <Button variant="contained" color="primary" onClick={handleNext}>
+             Next
+          </Button>): (
+          <Button variant="contained" color="primary" onClick={handleStepSubmit}>
+              Submit
+            </Button>
+            )}
+
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ForgotPasswordForm;
