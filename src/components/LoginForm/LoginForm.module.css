@@ -1,0 +1,8 @@
+.social_media_button_container{
+    display: flex;
+}
+
+.login_form {
+    display: flex;
+    flex-direction: column;
+}
