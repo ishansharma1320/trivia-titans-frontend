@@ -87,7 +87,7 @@ export default function NavBar() {
     } }}>
                 Login
             </Button>
-            <Button component={NavLink} to="/page-link" sx={{ my: 2, color: 'white', display: 'block' }}>
+            <Button component={NavLink} to="/register" sx={{ my: 2, color: 'white', display: 'block' }}>
                 Register
             </Button>
           </Box>
