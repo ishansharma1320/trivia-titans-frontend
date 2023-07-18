@@ -34,7 +34,7 @@ export default function LoginForm() {
        <form onSubmit={formHandler()} className={sharedCSSModule.login_form}>
        <TextField inputRef={emailInputElementReference} sx={{mb: 2}}fullWidth label="Email Address" id="Email Address" />
         <TextField inputRef={passwordInputElementReference} sx={{mb: 2}} type='password' fullWidth label="Password" id="fullWidth" />
-        <Button component={NavLink} to='/forgotPassword' sx={{alignSelf: 'end', fontSize: '12px'}}> Forgot Password</Button>
+        <Button component={NavLink} to='/auth/forgotPassword' sx={{alignSelf: 'end', fontSize: '12px'}}> Forgot Password</Button>
         <Button  sx={{mb: 2,py:1}} type='submit' variant="contained">Login</Button>
        </form>
        <div className={loginCSSModule.social_media_button_container}>

@@ -58,7 +58,7 @@ import { MuiFileInput } from "mui-file-input";
 import DatePicker from 'react-date-picker';
 import 'react-date-picker/dist/DatePicker.css';
 import 'react-calendar/dist/Calendar.css';
-import './DatePickerCustom.css';
+import '../shared/css/DatePickerCustom.css';
 import { FacebookSignUpButton,GoogleSignUpButton } from '../socials/customButtons';
 const steps = ['Profile Info', 'Demographic Info', 'Security Questions']; // Add your desired steps here
 
@@ -125,6 +125,7 @@ const RegisterForm = () => {
     switch (step) {
       case 0:
         return (
+          // repeated
           <Stack spacing={2}>
             <TextField onChange={(event) => {
               handleFormChange(event);

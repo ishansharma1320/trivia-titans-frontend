@@ -2,34 +2,37 @@ import { Outlet } from "react-router-dom";
 import NavBar from '../../components/NavBar/NavBar';
 import { Grid,Box } from "@mui/material";
 
-function AuthLayout(){
+function HomeLayout(){
     return <>
-    <NavBar isAuth={false}/>
+    <NavBar isAuth={true}/>
     <Grid
         container
         spacing={0}
         direction="column"
         alignItems="center"
-        justifyContent="center"
-        sx={{ minHeight: '100vh' }}
+        // justifyContent="center"
+        sx={{ minHeight: '100vh', padding: 2 }}
       >
-         <Grid item xs={3}>
-         <Box
+           {/* <Grid item xs={3}> */}
+         {/* <Box
         sx={{
-          width: 500,
+          height: '70vh',
+          width: '80vw',
           py: 20,
           px: 10,
           maxWidth: '100%',
           boxShadow: 12,
           border: "1px solid grey",
         }}
-      >
+      > */}
          <Outlet/>
-         </Box>
-        </Grid>
+         {/* </Box> */}
+        {/* </Grid> */}
+         
+        
       </Grid>
     
     </>
 }
 
-export default AuthLayout;
+export default HomeLayout;

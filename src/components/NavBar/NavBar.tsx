@@ -11,13 +11,13 @@ import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
 import { NavLink } from 'react-router-dom';
 
-export default function NavBar() {
-  const [auth, setAuth] = React.useState(false);
+export default function NavBar({ isAuth }) {
+  const [auth, setAuth] = React.useState(isAuth);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
-//   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-//     setAuth(event.target.checked);
-//   };
+  // const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   setAuth(event.target.checked);
+  // };
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -79,7 +79,7 @@ export default function NavBar() {
           </div>
           ): (
            <Box component='div' sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' },justifyContent: 'flex-end' }}>
-            <Button component={NavLink} to="/login" sx={{ my: 2, mr:2, color: 'white', display: 'block', '&.active': {
+            <Button component={NavLink} to="/auth/login" sx={{ my: 2, mr:2, color: 'white', display: 'block', '&.active': {
       fontWeight: 'bold',
       borderBottom: '2px solid #FFF',
       paddingBottom: '3px',
@@ -87,7 +87,7 @@ export default function NavBar() {
     } }}>
                 Login
             </Button>
-            <Button component={NavLink} to="/register" sx={{ my: 2, color: 'white', display: 'block' }}>
+            <Button component={NavLink} to="/auth/register" sx={{ my: 2, color: 'white', display: 'block' }}>
                 Register
             </Button>
           </Box>
