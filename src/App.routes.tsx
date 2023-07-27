@@ -10,12 +10,14 @@ import AdminPanel from './components/AdminPanel/AdminPanel';
 import GamePanel from './components/AdminPanel/GamePanel/GamePanel';
 import QuestionsPanel from './components/AdminPanel/QuestionsPanel/QuestionsPanel';
 import QuestionsTable from './components/AdminPanel/QuestionsPanel/QuestionsTable';
+import SecurityQuestionForm from './components/LoginForm/SecurityQuestionForm/SecurityQuestionForm';
 const router = createBrowserRouter([
     {path: '/auth', element: <AuthLayout />,
     children: [
         {path: 'login', element: <LoginForm />},
         {path: 'forgotPassword', element: <ForgotPasswordForm />},
-        {path: 'register', element: <RegisterForm />}
+        {path: 'register', element: <RegisterForm />},
+        {path: 'login/securityQuestion', element: <SecurityQuestionForm />}
     ]},
     {path: '/home', element: <HomeLayout />,
     children: [
