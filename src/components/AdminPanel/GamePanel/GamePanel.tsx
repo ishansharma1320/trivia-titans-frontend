@@ -15,16 +15,15 @@ const GamePanel: React.FC = () => {
   const handleOpen = () => setModalOpen(true);
   const handleClose = () => setModalOpen(false);
   const navigate = useNavigate();
-  const componentsArray = [<GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />];
+//   const componentsArray = [<GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />];
 
   // Function to fetch data from API and update games state
   const fetchGamesData = async () => {
     try {
       const response = await fetch('https://4lqzs6o57b.execute-api.us-east-1.amazonaws.com/prod/getgamelist'); // Replace with your actual API endpoint
       const data = await response.json();
-      console.log(data);
       setGames(data);
-      console.log("componentsArray",componentsArray);
+
 
     } catch (error) {
       console.error('Error fetching data:', error);
