@@ -9,9 +9,6 @@ import { Stack } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 
-
-
-
 const GameCard = (props) => {
     const {game} = props;
     const getDateStringFromDate = (date) => {
@@ -42,10 +39,10 @@ const GameCard = (props) => {
                
                 <Stack direction="row" sx={{width: '100%', marginTop: 2}} justifyContent="space-between" >
                 <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-                {game.questionsCount}
+                {game.numberOfQuestions}
                 </Typography>
                 <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-                {getDateStringFromDate(game.createdAt)}
+                {game.id}
                 </Typography>    
                 </Stack>
               </Stack>
