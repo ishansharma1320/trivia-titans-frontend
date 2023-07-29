@@ -11,6 +11,7 @@ import GamePanel from './components/AdminPanel/GamePanel/GamePanel';
 import QuestionsPanel from './components/AdminPanel/QuestionsPanel/QuestionsPanel';
 import QuestionsTable from './components/AdminPanel/QuestionsPanel/QuestionsTable';
 import SecurityQuestionForm from './components/LoginForm/SecurityQuestionForm/SecurityQuestionForm';
+import AllQuestionsPanel from './components/AdminPanel/QuestionsPanel/AllQuestionsPanel';
 const router = createBrowserRouter([
     {path: '/auth', element: <AuthLayout />,
     children: [
@@ -26,7 +27,7 @@ const router = createBrowserRouter([
             { path: '', element: <Navigate to="games" /> }, 
             {path: 'games', element: <GamePanel />},
             { path: 'games/view', element: <QuestionsPanel /> },
-            {path: 'questions', element: <QuestionsPanel />}
+            {path: 'questions', element: <AllQuestionsPanel/>}
         ]},
         // {path: '/forgotPassword', element: <ForgotPasswordForm />},
         // {path: '/register', element: <RegisterForm />}

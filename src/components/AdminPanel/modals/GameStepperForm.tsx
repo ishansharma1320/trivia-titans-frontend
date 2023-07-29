@@ -11,6 +11,7 @@ interface FormData {
   category?: string;
   difficulty?: string;
   questionsCount?: string;
+  interval?: number;
   // Add other properties as needed
 }
 
@@ -89,6 +90,7 @@ const handleStepSubmit = () =>{
       duration: 10, // Replacing this with the actual duration value
       numberOfQuestions: formData.questionsCount, // Replace this with the actual number of questions value
       questionIds: selectedQuestionIds,
+      interval: formData.interval,
     };
 
     const requestBodyJson = JSON.stringify(requestBody);
@@ -168,6 +170,8 @@ const handleStepSubmit = () =>{
                 <MenuItem value={"Science"}>Science</MenuItem>
                 <MenuItem value={"Sports"}>Sports</MenuItem>
                 <MenuItem value={"Entertainment"}>Entertainment</MenuItem>
+                <MenuItem value={"Technology"}>Technology</MenuItem>
+                <MenuItem value={"General Knowledge"}>General Knowledge</MenuItem>
               </Select>
             </FormControl>
             <FormControl fullWidth>
@@ -191,6 +195,11 @@ const handleStepSubmit = () =>{
 
               handleFormChange(event);
             }} value={formData['questionsCount'] || ''} fullWidth label="No. of Questions" id="questionsCount" name="questionsCount" type='number' />
+             
+             <TextField onChange={(event) => {
+
+handleFormChange(event);
+}} value={formData['interval'] || ''} fullWidth label="Game Interval in seconds" id="interval" name="interval" type='number' />
             
 
           </Stack>
