@@ -19,6 +19,12 @@ const GameCard = (props) => {
         return `${year}-${month}-${day}`;
       };
     const navigate = useNavigate();
+
+    const handleViewClick = () => {
+        // Pass the game object to the navigate function
+        navigate("/home/admin/games/view", { state: { game } });
+    };
+
     return (<Box sx={{ minWidth: 275 }}>
         <Card variant="outlined">
 
@@ -50,7 +56,8 @@ const GameCard = (props) => {
                
             </CardContent>
             <CardActions>
-                <Button size="small" variant="contained" onClick={()=>{navigate("/home/admin/games/view")}}>View</Button>
+            <Button size="small" variant="contained" onClick={handleViewClick}>View</Button>
+            
             </CardActions>
 
         </Card>
