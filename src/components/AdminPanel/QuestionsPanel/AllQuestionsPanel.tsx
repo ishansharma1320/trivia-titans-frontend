@@ -1,8 +1,7 @@
-
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import QuestionsTable from './QuestionsTable';
-import { useState, useEffect } from 'react';
+import { useState,useEffect } from 'react';
 import ModifyQuestionModal from '../modals/ModifyQuestionModal';
 import QuestionsContext from '../contexts/Questions.context';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -10,14 +9,13 @@ import { questionsData } from '../interfaces/Question.interface';
 import { IconButton, Typography } from '@mui/material';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
-
 interface Question {
     questionId: string,
     questionText: string,
     category: string,
     difficulty: string,
     tags: string[],
-    gameCount: number,
+    // gameCount: number,
     checked?: boolean,
     questionAnswers: {
       answerText: string,
@@ -37,46 +35,49 @@ export default function AllQuestionsPanel() {
 
 
     const fetchQuestionsByGameId = async () => {
-        try {
-
-    
-          const response = await fetch(`https://4oo3qjtzqe.execute-api.us-east-1.amazonaws.com/prod/getallquestions`, {
-            method: 'GET',
+      try {
+        const response = await fetch(
+          `https://4oo3qjtzqe.execute-api.us-east-1.amazonaws.com/prod/getallquestions`,
+          {
+            method: "GET",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
               // Add any other headers as needed
             },
-          });
-    
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
           }
-    
-          const data = await response.json();
-          return data; // Assuming the response is an array of objects containing questions data
-        } catch (error) {
-          throw new Error('Error fetching questions');
+        );
+  
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
         }
-      };
-    
+  
+        const data = await response.json();
+        return data; // Assuming the response is an array of objects containing questions data
+      } catch (error) {
+        throw new Error("Error fetching questions");
+      }
+    };
+  
     useEffect(() => {
-        // Make the API call and store the response data
-        if (true) {
-          fetchQuestionsByGameId()
-            .then((response) => {
-              // Assuming the response is an array of objects containing questions data
-              setRows(response);
-              console.log("API response "+JSON.stringify(response));
-            })
-            .catch((error) => {
-              console.error('Error fetching questions:', error);
-            });
-        }
-      }, []);
+      // Make the API call and store the response data
+      if (true) {
+        fetchQuestionsByGameId()
+          .then((response) => {
+            // Assuming the response is an array of objects containing questions data
+            setRows(response);
+            console.log("API response " + JSON.stringify(response));
+          })
+          .catch((error) => {
+            console.error("Error fetching questions:", error);
+          });
+      }
+    }, []);
+
+
+
 
 
     const isGameView: boolean = location.pathname.includes("/home/admin/games/view")
-
     const handleFormChange = (event) => {
         const { name, value } = event.target;
         if(name === "correctAnswerRadio"){

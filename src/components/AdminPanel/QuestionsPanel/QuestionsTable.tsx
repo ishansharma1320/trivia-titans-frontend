@@ -129,7 +129,7 @@ export default function QuestionsTable() {
             <TableCell  sx={{fontWeight: 'bold'}} align="right">Category</TableCell>
             <TableCell  sx={{fontWeight: 'bold'}} align="right">Difficulty</TableCell>
             <TableCell  sx={{fontWeight: 'bold'}} align="right">Tags</TableCell>
-            {!isGameView && (<TableCell sx={{fontWeight: 'bold'}} align="right">Game Count</TableCell>)}
+            {/* {!isGameView && (<TableCell sx={{fontWeight: 'bold'}} align="right">Game Count</TableCell>)} */}
           </TableRow>
         </TableHead>
         <TableBody>
