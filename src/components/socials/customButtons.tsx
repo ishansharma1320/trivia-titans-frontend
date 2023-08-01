@@ -1,5 +1,5 @@
 
-import {FacebookSvgIcon, GoogleSvgIcon} from './icons/icons';
+import {FacebookSvgIcon, GoogleSvgIcon, TwitterSvgIcon} from './icons/icons';
 import {createButton, createSvgIcon} from "react-social-login-buttons";
 
 const facebookSignupConfig = {
@@ -12,6 +12,18 @@ const facebookSignupConfig = {
 /** Facebook Sign Up button. */
 const FacebookSignUpButton = createButton(facebookSignupConfig);
 
+
+const twitterSignupConfig = {
+    text: "Sign Up with Twitter",
+    icon: createSvgIcon(TwitterSvgIcon),
+    iconFormat: name => `fa fa-${name}`,
+    style: { background: "#1DA1F2", fontSize: "14px" },
+    activeStyle: { background: "#0d86d0" },
+};
+/** Twitter Sign Up button. */
+const TwitterSignUpButton = createButton(twitterSignupConfig);
+
+
 const googleSignUpConfig = {
     text: "Sign Up with Google",
     icon: createSvgIcon(GoogleSvgIcon),
@@ -23,4 +35,4 @@ const googleSignUpConfig = {
   const GoogleSignUpButton = createButton(googleSignUpConfig);
 
 
-export{ FacebookSignUpButton, GoogleSignUpButton }
+export{ FacebookSignUpButton, GoogleSignUpButton, TwitterSignUpButton }

@@ -9,15 +9,14 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 
 export default function NavBar({ isAuth }) {
+  const navigate = useNavigate();
   const [auth, setAuth] = React.useState(isAuth);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-
-  // const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   setAuth(event.target.checked);
-  // };
+  const location = useLocation();
+  const { claim, email, token, uid } = location.state || {};
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -25,6 +24,30 @@ export default function NavBar({ isAuth }) {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handlelogout = async () => { // Mark the function as async
+    try {
+      const response = await fetch("https://login-kku3a2biga-uc.a.run.app/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          token: token || "", // Use the token from the login page state or provide a default value
+        }),
+      });
+
+      const responseData = await response.json();
+
+      if (responseData.status === true && responseData.response === "User logged out successfully.") {
+        navigate('/auth/login');
+      } else {
+        console.log("Logout error");
+      }
+    } catch (error) {
+      console.error("Error occurred while logging out:", error);
+    }
   };
 
   return (
@@ -75,6 +98,7 @@ export default function NavBar({ isAuth }) {
             >
               <MenuItem onClick={handleClose}>Profile</MenuItem>
               <MenuItem onClick={handleClose}>My account</MenuItem>
+              <MenuItem onClick={handlelogout}>Logout</MenuItem>
             </Menu>
           </div>
           ): (
