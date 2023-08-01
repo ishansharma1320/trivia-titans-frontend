@@ -48,15 +48,26 @@ export default function SecurityQuestionForm() {
                         token: token,
                         uid: uid,
                     });
-
-                    navigate('/home', {
-                        state: {
-                            claim: claim,
-                            email: email,
-                            token: token,
-                            uid: uid,
-                        },
-                    });
+                    if (claim === 'admin') {
+                        navigate('/home/admin', {
+                            state: {
+                                claim: claim,
+                                email: email,
+                                token: token,
+                                uid: uid,
+                            },
+                        });
+                    }
+                    else {
+                        navigate('/home', {
+                            state: {
+                                claim: claim,
+                                email: email,
+                                token: token,
+                                uid: uid,
+                            },
+                        });
+                    }
                 }
                  else {
                     setResponseMessage('Answer is incorrect.');
