@@ -22,14 +22,12 @@ const GamePanel: React.FC = () => {
   const handleOpen = () => setModalOpen(true);
   const handleClose = () => setModalOpen(false);
   const navigate = useNavigate();
-  //   const componentsArray = [<GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />, <GameCard game={games[0]} />, <GameCard game={games[1]} />];
 
-  // Function to fetch data from API and update games state
   const fetchGamesData = async () => {
     try {
       const response = await fetch(
         "https://4lqzs6o57b.execute-api.us-east-1.amazonaws.com/prod/getgamelist"
-      ); // Replace with your actual API endpoint
+      );
       const data = await response.json();
       setGames(data);
     } catch (error) {
@@ -38,9 +36,8 @@ const GamePanel: React.FC = () => {
   };
 
   useEffect(() => {
-    // Call fetchGamesData function when the component mounts for the first time
     fetchGamesData();
-  }, []); // Empty dependency array ensures it runs only once
+  }, []);
 
   return (
     <Stack spacing={4}>
@@ -79,12 +76,6 @@ const GamePanel: React.FC = () => {
               <GameCard game={game} />
             </Grid>
           ))}
-
-          {/* {componentsArray.map((component, index) => (
-            <Grid key={`component-${index}`} item xs={12} sm={6} md={4} lg={3}>
-              {component}
-            </Grid>
-          ))} */}
         </Grid>
       </Stack>
     </Stack>

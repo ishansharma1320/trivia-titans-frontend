@@ -19,8 +19,7 @@ const Sidebar = styled.div`
 `;
 
 const MainContent = styled.div`
-  flex-grow: 1; /* This will make the main content spread and occupy the remaining space */
-  display: flex;
+  flex-grow: 1;
   flex-direction: column;
   align-items: center;
   margin-left: 20px;
