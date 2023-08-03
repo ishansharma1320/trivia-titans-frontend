@@ -10,19 +10,6 @@ import { useNavigate } from "react-router-dom";
 
 const GameCard = (props) => {
   const { game } = props;
-  const [intervalValue, setIntervalValue] = React.useState(game.interval);
-  const navigate = useNavigate();
-
-  React.useEffect(() => {
-    let intervalId;
-    if (intervalValue > 0) {
-      intervalId = setInterval(() => {
-        setIntervalValue((prevValue) => prevValue - 1);
-      }, 1000);
-    }
-    return () => clearInterval(intervalId);
-  }, [intervalValue]);
-
   const getDateStringFromDate = (date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -30,6 +17,7 @@ const GameCard = (props) => {
 
     return `${year}-${month}-${day}`;
   };
+  const navigate = useNavigate();
 
   const handleViewClick = () => {
     navigate("/home/admin/games/view", { state: { game } });
@@ -54,14 +42,14 @@ const GameCard = (props) => {
                 color="text.secondary"
                 gutterBottom
               >
-                {game.difficulty}
+                Difficulty: {game.difficulty}
               </Typography>
               <Typography
                 sx={{ fontSize: 14 }}
                 color="text.secondary"
                 gutterBottom
               >
-                {game.category}
+                Category: {game.category}
               </Typography>
             </Stack>
 
@@ -79,18 +67,14 @@ const GameCard = (props) => {
                 color="text.secondary"
                 gutterBottom
               >
-                {game.numberOfQuestions}
+                Number of questions: {game.numberOfQuestions}
               </Typography>
               <Typography
                 sx={{ fontSize: 14 }}
                 color="text.secondary"
                 gutterBottom
               >
-                {intervalValue > 0 ? (
-                  `Time to start: ${intervalValue}`
-                ) : (
-                  <span style={{ color: "red" }}>Game has already started</span>
-                )}
+                Time to start :{game.interval} seconds
               </Typography>
             </Stack>
           </Stack>
