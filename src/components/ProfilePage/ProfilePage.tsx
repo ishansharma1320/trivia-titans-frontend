@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import { makeStyles } from '@mui/styles';
 import TextField from '@mui/material/TextField';
 import Accordion from '@mui/material/Accordion';
@@ -16,6 +16,7 @@ import DatePicker from 'react-date-picker';
 import 'react-date-picker/dist/DatePicker.css';
 import 'react-calendar/dist/Calendar.css';
 import '../shared/css/DatePickerCustom.css';
+import {useLocation} from "react-router-dom";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -85,6 +86,8 @@ const ProfilePage = () => {
   const [defaultAvatarContent, setDefaultAvatarContent] = useState({ fInitial: 'N', lInitial: 'A' });
   const [expandAccordion, setExpandAccordion] = useState({profileInfo: false, demographicInfo: false});
   const [affiliations,setAffiliations] = useState([1, 2, 3]);
+  const location = useLocation();
+  const { claim, email, token, uid } = location.state || {};
   const [formData, setFormData] = useState({
     username: 'john.doe',
     fname: 'John',
@@ -97,6 +100,10 @@ const ProfilePage = () => {
     country: 'Canada'
   });
 
+  useEffect(() => {
+
+
+  }, []);
 
   const removeTeamAffiliations = (element) => {
     const updatedArray = affiliations.filter((item) => item !== element);
@@ -108,7 +115,6 @@ const ProfilePage = () => {
       ...prevExpandAccordion,
       [key]: value,
     }));
-    
   };
   
   const handleEditClick = (key: string, value: boolean) => {
@@ -120,8 +126,6 @@ const ProfilePage = () => {
       console.log(formData);
     }
   };
-
-
 
   const handleFormChange = (event) => {
     const { name, value } = event.target;
