@@ -10,7 +10,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
-
+import { auth } from "../../../firebaseconfig.js";
 export default function NavBar({ isAuth }) {
   const navigate = useNavigate();
   const [auth, setAuth] = React.useState(isAuth);
@@ -50,12 +50,20 @@ export default function NavBar({ isAuth }) {
       });
 
       const responseData = await response.json();
-
-      if (responseData.status === true && responseData.response === "User logged out successfully.") {
-        navigate('/auth/login');
-      } else {
-        console.log("Logout error");
-      }
+      // console.log(auth);
+      // await auth.signOut()
+      // if (responseData.status === true && responseData.response === "User logged out successfully.") {
+      //   localStorage.removeItem("user");
+      // localStorage.removeItem("token");
+      // localStorage.removeItem("team");
+      // navigate('/auth/login'); 
+      // } else {
+      //   console.log("Logout error");
+      // }
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      localStorage.removeItem("team");
+      navigate('/auth/login');
     } catch (error) {
       console.error("Error occurred while logging out:", error);
     }

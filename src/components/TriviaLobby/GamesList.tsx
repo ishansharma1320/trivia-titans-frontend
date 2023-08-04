@@ -25,6 +25,7 @@ interface GameWithStatus {
   time_to_start?: string; 
   participants?: string; 
 }
+import { useNavigate } from 'react-router-dom';
 
 export default function GamesList() {
   const [allGames, setAllGames] = useState<GameWithStatus[]>([]);
@@ -42,8 +43,9 @@ export default function GamesList() {
   
   const itemsPerPage = 9;
   const apiUrl = 'https://4lqzs6o57b.execute-api.us-east-1.amazonaws.com/prod/getgamelist';
-
+const navigate = useNavigate();
   useEffect(() => {
+  
     const fetchGames = async () => {
       try {
         const response = await axios.get(apiUrl);
@@ -54,6 +56,10 @@ export default function GamesList() {
       }
     };
 
+    
+    if(localStorage.getItem("team") == "undefined"){
+      navigate("/home/addTeam")
+    }
     fetchGames();
   }, []);
 
@@ -86,6 +92,7 @@ export default function GamesList() {
 
   return (
     <Container>
+      <Button size="small" variant="contained" sx={{float: 'right', margin: 2}} onClick={()=>{navigate("/home/leaderboard")}}>View Leaderboard</Button>
       <Box my={3}>
         <TextField
           fullWidth

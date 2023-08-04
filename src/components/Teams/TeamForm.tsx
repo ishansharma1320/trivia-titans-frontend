@@ -1,10 +1,12 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback,  } from 'react';
 import TextField from '@mui/material/TextField';
 import { Button, Container, Paper, Grid, Box,  Typography } from '@mui/material';
+import {auth} from "../../../firebaseconfig.js";
+import { useNavigate } from "react-router-dom";
 
 export default function TeamForm() {
   // const adminEmail = localStorage.getItem('adminEmail');
-  const adminEmail = "pranay@gmail.com";
+  const navigate = useNavigate();
 
   const [members, setMembers] = useState(['']);
 
@@ -20,30 +22,37 @@ export default function TeamForm() {
     }
   };
 
-  const formHandler = useCallback((event) => {
-    event.preventDefault();
 
-    const data = {
-      admin: adminEmail,
-      members: members.filter((member) => member !== ''), // Filter out any empty members
-    };
-    console.log(JSON.stringify(data));
-
-    fetch('https://scstzow4wc.execute-api.us-east-1.amazonaws.com/dev/app/team/', {
+  const createTeam = async (data, idToken) =>{
+    let response = await fetch('https://6418qzn2i7.execute-api.us-east-1.amazonaws.com/dev/app/team', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        authorizationToken: idToken
       },
       body: JSON.stringify(data),
     })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('Team added successfully:', data);
-      })
-      .catch((error) => {
-        console.error('An error occurred while adding the team:', error);
-      });
-  }, [adminEmail, members]);
+    let json = await response.json();
+    return json;
+  }
+  const formHandler = useCallback(async (event) => {
+    event.preventDefault();
+    let user = localStorage.getItem("user");
+    if (user && auth.currentUser) {
+      user = JSON.parse(localStorage.getItem("user"));
+      let idToken = await auth.currentUser.getIdToken();
+      const data = {
+        admin: user['email'],
+        members: members.filter((member) => member !== ''), // Filter out any empty members
+      };
+      let createdTeamResponse = await createTeam(data, idToken);
+      if (createdTeamResponse) {
+        localStorage.setItem("team", JSON.stringify(createdTeamResponse));
+        navigate("/home/gamesList");
+      }
+    }
+  }, [members, navigate]);
+
 
   return (
   <Grid

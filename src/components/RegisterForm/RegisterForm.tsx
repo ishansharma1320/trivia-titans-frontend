@@ -26,7 +26,46 @@ const RegisterForm = () => {
         uid: '',
     });
 
-    const handleGoogleSignUp = () => {
+    const createSubscription = async (email) =>{
+        let response = await fetch("https://6418qzn2i7.execute-api.us-east-1.amazonaws.com/dev/auth/register/subscribe", {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+        },
+          body: JSON.stringify({email})
+        })
+        console.log(response);
+        return response;
+      }
+    
+      
+      const handleAppRedirect = async (user) => {
+        if(auth.currentUser){
+            const idTokenResult = auth.currentUser.getIdTokenResult();
+            const customClaims = idTokenResult.claims;
+
+            console.log(customClaims);
+            if (customClaims && customClaims.admin === true) {
+                navigate('/admin', {
+                    state: {
+                        email: user.email, token: user.token,uid: user.uid
+                    },
+                });
+         
+            } else {
+                console.log("here");
+                navigate('/home/addTeam', {
+                    state: {
+                        email: user.email, token: user.token,uid: user.uid
+                    },
+                });
+
+            }
+        }
+        
+    }  
+    const handleGoogleSignUp = async () => {
+        
         signInWithPopup(auth, googleprovider).then(async (result) => {
             const {displayName, email, photoURL, uid} = result.user;
             const accessToken = result.user.stsTokenManager.accessToken;
@@ -38,6 +77,7 @@ const RegisterForm = () => {
                 uid: uid,
                 profile_pic: photoURL,
             }
+            
             if (result.user) {
 
                 const response = await fetch('https://register-kku3a2biga-uc.a.run.app/register/thirdparty', {
@@ -47,10 +87,11 @@ const RegisterForm = () => {
                     },
                     body: JSON.stringify(data),
                 });
-
+                
                 console.log(response);
+                await createSubscription(data.email);
                 if (response.ok) {
-                    navigate('/home')
+                    await handleAppRedirect(result.user)
                 }
             }
         }).catch((error) => {
@@ -79,10 +120,10 @@ const RegisterForm = () => {
                     },
                     body: JSON.stringify(data),
                 });
-
+                await createSubscription(data.email);
                 console.log(response);
                 if (response.ok) {
-                    navigate('/home')
+                    await handleAppRedirect(result.user)
                 }
             }
         }).catch((error) => {
@@ -155,9 +196,10 @@ const RegisterForm = () => {
                 body: JSON.stringify(requestBody)
             })
                 .then(response => response.json())
-                .then(data => {
+                .then(async (data) => {
                     if (data.status == true && data.response == "User registered successfully.") {
-                        navigate('/auth/login')
+                        await createSubscription(formData.email);
+                        // navigate('/auth/login')
                     }
                     else {
                         setErrorMessage(data.response);

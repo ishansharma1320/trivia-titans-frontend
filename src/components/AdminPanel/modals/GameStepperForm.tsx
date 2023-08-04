@@ -5,18 +5,67 @@ import { questionsData } from '../interfaces/Question.interface';
 import QuestionDetail from '../shared/QuestionDetail';
 const steps = ['Game Metadata', 'Select Questions']; // Add your desired steps here
 
+
+interface FormData {
+  gameName?: string;
+  category?: string;
+  difficulty?: string;
+  questionsCount?: string;
+  interval?: number;
+  // Add other properties as needed
+}
+
+interface Question {
+  id: string;
+  question: string;
+  difficulty: string;
+  // Add other properties as needed
+}
+
 const GameStepperForm = () => {
   const [activeStep, setActiveStep] = useState(0);
-  
-  const [formData, setFormData] = useState({}); // Store form data
+  const [formData, setFormData] = useState<FormData>({});
   const [questions, setQuestions] = useState(questionsData);
+  const [testresponse, setTestresponse] = useState<Question[]>([]);
+  const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+
+    // Function to log the form data
+    const logFormData = () => {
+      console.log("formData",formData);
+    };
+
+    const fetchData = async (category, difficulty) => {
+      try {
+        const response = await fetch(`https://d8qi2n7h3g.execute-api.us-east-1.amazonaws.com/prod/getquestions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ category, difficulty }),
+        });
+        const data = await response.json();
+        console.log(data);
+        setTestresponse(data); 
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    finally {
+      setLoading(false); // Seting  loading to false after the API call is completed
+    }
+    };
   
   
 
-  const handleNext = () => {
-   
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-  };
+    const handleNext = async () => {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      logFormData();
+    
+
+      if (formData.category && formData.difficulty) {
+        await fetchData(formData.category, formData.difficulty);
+      }
+    };
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
@@ -28,27 +77,74 @@ const GameStepperForm = () => {
     console.log(selectedQuestions);
     let event = {target: {name: "questions", value: selectedQuestions}};
     handleFormChange(event);
-     // Log form data on submission
+
 };
 
 const handleStepSubmit = () =>{
     console.log(formData);
+
+    const requestBody = {
+      category: formData.category,
+      gameName: formData.gameName,
+      difficulty: formData.difficulty,
+      duration: 10, // Replacing this with the actual duration value
+      numberOfQuestions: formData.questionsCount, // Replace this with the actual number of questions value
+      questionIds: selectedQuestionIds,
+      interval: formData.interval,
+    };
+
+    const requestBodyJson = JSON.stringify(requestBody);
+
+    fetch('https://k5z5a1x023.execute-api.us-east-1.amazonaws.com/prod/creategame', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: requestBodyJson,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data);
+        setSelectedQuestionIds([]); 
+        alert("Game Successfully created");
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+
+
 }
 
 
 
   const handleFormChange = (event) => {
+
     const { name, value } = event.target;
     console.log(event.target)
     setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
     
   };
 
-  const handleCheckChange = (index) =>{
-    let previousQuestionsData = [...questionsData];
-    previousQuestionsData[index].checked = !previousQuestionsData[index].checked;
-    setQuestions(previousQuestionsData)
-    handleCheckChangeFormData();
+  const handleCheckChange = (item) =>{
+
+    console.log("item",item);
+
+    setSelectedQuestionIds((prevIds) => {
+      if (prevIds.includes(item.id)) {
+        // If the question ID is already in the selectedQuestionIds array, remove it
+        return prevIds.filter((id) => id !== item.id);
+      } else {
+        // If the question ID is not in the selectedQuestionIds array, add it
+        return [...prevIds, item.id];
+      }
+    });
+    // let previousQuestionsData = [...questionsData];
+
   }
   const renderStepContent = (step) => {
     switch (step) {
@@ -71,9 +167,11 @@ const handleStepSubmit = () =>{
                   handleFormChange(event);
                 }}
               >
-                <MenuItem value={"option 1"}>option 1</MenuItem>
-                <MenuItem value={"option 2"}>option 2</MenuItem>
-                <MenuItem value={"option 3"}>option 3</MenuItem>
+                <MenuItem value={"Science"}>Science</MenuItem>
+                <MenuItem value={"Sports"}>Sports</MenuItem>
+                <MenuItem value={"Entertainment"}>Entertainment</MenuItem>
+                <MenuItem value={"Technology"}>Technology</MenuItem>
+                <MenuItem value={"General Knowledge"}>General Knowledge</MenuItem>
               </Select>
             </FormControl>
             <FormControl fullWidth>
@@ -97,6 +195,11 @@ const handleStepSubmit = () =>{
 
               handleFormChange(event);
             }} value={formData['questionsCount'] || ''} fullWidth label="No. of Questions" id="questionsCount" name="questionsCount" type='number' />
+             
+             <TextField onChange={(event) => {
+
+handleFormChange(event);
+}} value={formData['interval'] || ''} fullWidth label="Game Interval in seconds" id="interval" name="interval" type='number' />
             
 
           </Stack>
@@ -104,40 +207,44 @@ const handleStepSubmit = () =>{
         );
       case 1:
         return (
-          
-            <FormGroup>
-                <Stack spacing={2}>
-                    {questions.map((item,index) => {
-                        return (
-                            <Accordion key={item.questionId}>
 
-                                <Box sx={{ display: "flex" }} >
-                                    <Box sx={{ alignSelf: 'center', marginRight: 2 }}>
-                                        <Checkbox checked={item.checked} onChange={()=>{
-                                            handleCheckChange(index);
-                                        }}/>
-                                    </Box>
-                                    <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ marginLeft: 2 }} />} sx={{ flexGrow: 1 }} >
 
-                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', flex: 1 }}>
-                                            <Typography variant="h6">{item.questionText}</Typography>
-                                            <Typography variant='body1'>{item.difficulty}</Typography>
-
-                                        </Box>
-                                    </AccordionSummary>
-
-                                </Box>
-                                <AccordionDetails>
-                                    <QuestionDetail row={item}></QuestionDetail>
-                                </AccordionDetails>
-                            </Accordion>
-
-                        )
-                    })}
-
-                </Stack>
-            </FormGroup>
-      
+          <FormGroup>
+  <Stack spacing={2}>
+    {/* Only render questions if testresponse is available and not loading */}
+    {testresponse && !loading ? (
+      testresponse.map((item, index) => {
+        return (
+          <Accordion key={item.id}>
+            <Box sx={{ display: "flex" }}>
+              <Box sx={{ alignSelf: 'center', marginRight: 2 }}>
+                <Checkbox
+                  // checked={item.checked} // Assuming the API response has a property for checked status
+                  onChange={() => {
+                    handleCheckChange(item);
+                  }}
+                />
+              </Box>
+              <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ marginLeft: 2 }} />} sx={{ flexGrow: 1 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', flex: 1 }}>
+                  {/* Display the questionText from the API response */}
+                  <Typography variant="h6">{item.question}</Typography>
+                  <Typography variant='body1'>{item.id}</Typography>
+                </Box>
+              </AccordionSummary>
+            </Box>
+            <AccordionDetails>
+              {/* If you need to show more details for each question, you can use the QuestionDetail component */}
+              {/* Your QuestionDetail component implementation */}
+            </AccordionDetails>
+          </Accordion>
+        );
+      })
+    ) : (
+      <Typography variant="body1">Loading questions...</Typography>
+    )}
+  </Stack>
+</FormGroup>
             
    
         );
@@ -177,14 +284,9 @@ const handleStepSubmit = () =>{
             <Button variant="contained" color="primary" onClick={handleNext} >
               Next
             </Button>) : (
-            <Button variant="contained" color="primary" onClick={handleStepSubmit} 
-            disabled={
-                formData["questions"] === undefined || formData["questions"] === null || 
-                (formData["questionsCount"] === undefined) ||
-                (Array.isArray(formData["questions"]) && formData["questions"].length < parseInt(formData["questionsCount"], 10))
-              } data-condition={Array.isArray(formData["questions"]) && formData["questions"].length < parseInt(formData["questionsCount"], 10)}>
-              Submit
-            </Button>
+              <Button variant="contained" color="primary" onClick={handleStepSubmit}>
+  Submit
+</Button>
           )}
 
         </div>

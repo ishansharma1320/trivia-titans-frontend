@@ -22,6 +22,53 @@ export default function SecurityQuestionForm() {
         uid: '',
     });
 
+
+    const handleAppRedirect = async (user) => {
+        if(auth.currentUser){
+            const idTokenResult = auth.currentUser.getIdTokenResult();
+            const customClaims = idTokenResult.claims;
+
+            console.log(customClaims);
+            if (customClaims && customClaims.admin === true) {
+                navigate('/admin', {
+                    state: {
+                        email: user.email, token: user.token,uid: user.uid
+                    },
+                });
+         
+            } else if(localStorage.getItem("team") && localStorage.getItem("user")){
+                console.log("here");
+                navigate('/home/gamesList', {
+                    state: {
+                        email: user.email, token: user.token,uid: user.uid
+                    },
+                });
+
+            } else if(localStorage.getItem("user")){
+                navigate("/home/addTeam");
+            }
+        }
+        
+    }  
+
+    const getTeamData = async () => {
+        let currentUser = auth.currentUser;
+        if(currentUser){
+            let idToken = currentUser.getIdToken();
+            let response = await fetch("https://6418qzn2i7.execute-api.us-east-1.amazonaws.com/dev/app/team",{
+                method: "GET",
+                headers: {
+                    authorizationToken: idToken
+                }
+            });
+            let json = await response.json();
+            console.log(json);
+            if(json.status && Array.isArray(json.teamData) && json.teamData.length){
+                localStorage.setItem("team", JSON.stringify(json.teamData[0]));
+            }
+
+        }
+    }
     const formHandler = useCallback(
         async (event) => {
             event.preventDefault();
@@ -49,42 +96,9 @@ export default function SecurityQuestionForm() {
                         token: token,
                         uid: uid,
                     });
-                    if (claim === 'admin') {
-                        navigate('/home/admin', {
-                            state: {
-                                claim: claim,
-                                email: email,
-                                token: token,
-                                uid: uid,
-                            },
-                        });
-                    }
-                    else {
-                        if(auth.currentUser) {
-                            let idtoken = await auth.currentUser.getIdToken(true);
-                            const response = await fetch('https://6418qzn2i7.execute-api.us-east-1.amazonaws.com/dev/app/team', {
-                                method: 'GET',
-                                headers: {
-                                    'authorizationToken': idtoken,
-                                }
-                            });
-                            console.log(response);
-                        }
-                        const responseData = await response.json();
-                        console.log("Response: "+ responseData.team);
-                        if (responseData.teamData && responseData.teamData.length > 0) {
-                            localStorage.setItem('team', responseData.team);
-                            navigate('/home/team')
-                        }
-                        navigate('/home', {
-                            state: {
-                                claim: claim,
-                                email: email,
-                                token: token,
-                                uid: uid,
-                            },
-                        });
-                    }
+                    await getTeamData();
+                    await handleAppRedirect({email, token, uid});
+                    
                 }
                  else {
                     setResponseMessage('Answer is incorrect.');

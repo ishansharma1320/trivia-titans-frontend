@@ -15,7 +15,6 @@ interface Question {
   category: string;
   difficulty: string;
   tags: string[];
-  gameCount: number;
   checked?: boolean;
   questionAnswers: {
     answerText: string;
@@ -23,7 +22,7 @@ interface Question {
   }[];
 }
 
-export default function QuestionsPanel() {
+export default function AllQuestionsPanel() {
   const [modalOpen, setModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     questionAnswers: [
@@ -40,22 +39,15 @@ export default function QuestionsPanel() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const game = location.state?.game;
-
-  const fetchQuestionsByGameId = async (gameId) => {
+  const fetchQuestionsByGameId = async () => {
     try {
-      const requestBody = {
-        id: gameId,
-      };
-
       const response = await fetch(
-        `https://q821rm5zx5.execute-api.us-east-1.amazonaws.com/prod/getgamedata`,
+        `https://4oo3qjtzqe.execute-api.us-east-1.amazonaws.com/prod/getallquestions`,
         {
-          method: "POST",
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(requestBody),
         }
       );
 
@@ -71,21 +63,21 @@ export default function QuestionsPanel() {
   };
 
   useEffect(() => {
-    if (game && game.id) {
-      fetchQuestionsByGameId(game.id)
+    if (true) {
+      fetchQuestionsByGameId()
         .then((response) => {
           setRows(response);
+          console.log("API response " + JSON.stringify(response));
         })
         .catch((error) => {
           console.error("Error fetching questions:", error);
         });
     }
-  }, [game]);
+  }, []);
 
   const isGameView: boolean = location.pathname.includes(
     "/home/admin/games/view"
   );
-
   const handleFormChange = (event) => {
     const { name, value } = event.target;
     if (name === "correctAnswerRadio") {
@@ -160,7 +152,12 @@ export default function QuestionsPanel() {
               </Button>
             </>
           ) : (
-            <IconButton onClick={() => {}} sx={{ color: "red" }}>
+            <IconButton
+              onClick={() => {
+                console.log("clicked....");
+              }}
+              sx={{ color: "red" }}
+            >
               {" "}
               <EditOutlinedIcon />{" "}
             </IconButton>

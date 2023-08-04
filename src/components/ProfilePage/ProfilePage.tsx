@@ -17,6 +17,9 @@ import 'react-date-picker/dist/DatePicker.css';
 import 'react-calendar/dist/Calendar.css';
 import '../shared/css/DatePickerCustom.css';
 import {useLocation} from "react-router-dom";
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import {auth} from "../../../firebaseconfig.js";
+
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -85,9 +88,11 @@ const ProfilePage = () => {
   const [value, setValue] = useState(null);
   const [defaultAvatarContent, setDefaultAvatarContent] = useState({ fInitial: 'N', lInitial: 'A' });
   const [expandAccordion, setExpandAccordion] = useState({profileInfo: false, demographicInfo: false});
-  const [affiliations,setAffiliations] = useState([1, 2, 3]);
+  const [affiliations,setAffiliations] = useState([]);
   const location = useLocation();
+  const [isAdmin, setIsAdmin] = useState(false);
   const { claim, email, token, uid } = location.state || {};
+  const [user,setUser] = useState(null);
   const [formData, setFormData] = useState({
     username: 'john.doe',
     fname: 'John',
@@ -101,9 +106,58 @@ const ProfilePage = () => {
   });
 
   useEffect(() => {
+    const getTeamData = async () => {
+      let user = localStorage.getItem("user");
+      
+      let team = localStorage.getItem("team");
+      if (team && user) {
+        team = JSON.parse(team)
+        user = JSON.parse(user)
+        setAffiliations([team]);
+        setUser(user);
+        
+          
+          let member = team.members.find(item=>item.uid === user.uid);
+          if(member && member.isAdmin){
+            setIsAdmin(true);
+          }
+        
+        
+      } else if(user){
+        let currentUser = auth.currentUser;
+        if (currentUser) {
+          let idToken = await currentUser.getIdToken();
+          let response = await fetch("https://6418qzn2i7.execute-api.us-east-1.amazonaws.com/dev/app/team", {
+            method: "GET",
+            headers: {
+              authorizationToken: idToken
+            }
+          });
+          let json = await response.json();
+          console.log(json);
+          if (json.status && Array.isArray(json.teamData) && json.teamData.length) {
+            localStorage.setItem("team", JSON.stringify(json.teamData[0]));
+            
+              
+              let member = json.teamData[0].members.find(item => item.uid === user.uid);
+              if (member && member.isAdmin) {
+                setIsAdmin(true);
+                setUser(user);
+              }
+            }
+            setAffiliations(json.teamData);
+          }
 
+        }
+      }
 
+    
+  getTeamData();
   }, []);
+
+
+ 
+
 
   const removeTeamAffiliations = (element) => {
     const updatedArray = affiliations.filter((item) => item !== element);
@@ -122,10 +176,22 @@ const ProfilePage = () => {
       ...prevIsEditing,
       [key]: value,
     }));
-    if(isEditing[key] === false){
-      console.log(formData);
-    }
   };
+
+  const handleSaveClick = async () =>{
+    let user = localStorage.getItem("user");
+    if(user){
+      user = JSON.parse(user);
+      const response = await fetch("https://us-central1-starry-lattice-386517.cloudfunctions.net/update-user-by-uid", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: user['uid'], ...formData })
+      })
+      let json = await response.json();
+      console.log(json);
+    }
+    
+  }
 
   const handleFormChange = (event) => {
     const { name, value } = event.target;
@@ -140,6 +206,33 @@ const ProfilePage = () => {
     }));
   };
 
+
+  const modifyTeam = async (team_id, uid, action,index) => {
+
+    let authUser = auth.currentUser;
+    if(authUser){
+      let idToken  = await authUser.getIdToken();
+      let response = await fetch("https://6418qzn2i7.execute-api.us-east-1.amazonaws.com/dev/app/team", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "authorizationToken": idToken,
+          
+        },
+        body: JSON.stringify({team_id, uid, action})
+      });
+      let json = await response.json();
+      console.log(json);
+      let team = affiliations[0];
+      if(action === "UPDATE"){
+        team.members[index].isAdmin = !team.members[index].isAdmin
+      } else {
+        team.members.splice(index,1)
+      }
+      setAffiliations([team])
+    }
+    
+  }
   const handleAvatarContentChange = (event) => {
     let key = event.target.name;
     let keyExists = formData[key] !== null && formData[key] !== undefined;
@@ -200,7 +293,7 @@ const ProfilePage = () => {
                 <Typography variant="h4">Profile Info</Typography>
               </AccordionSummary>
               <Box sx={{ alignSelf: 'center', marginRight: 2 }}>
-                <IconButton sx={{color: '#6400fa'}} disabled={isEditing.profileInfo === false}> <SaveOutlinedIcon /> </IconButton>
+                <IconButton onClick={() => {handleSaveClick()}} sx={{color: '#6400fa'}} disabled={isEditing.profileInfo === false}> <SaveOutlinedIcon /> </IconButton>
                 <IconButton onClick={() => {
                     handleEditClick("profileInfo", !isEditing.profileInfo);
                 }} sx={{color: 'red'}}> <EditOutlinedIcon /> </IconButton>
@@ -273,7 +366,7 @@ const ProfilePage = () => {
               <Typography variant="h4">Demographic Info</Typography>
             </AccordionSummary>
             <Box sx={{ alignSelf: 'center', marginRight: 2 }}>
-                <IconButton sx={{color: '#6400fa'}} disabled={isEditing.demographicInfo === false}> <SaveOutlinedIcon /> </IconButton>
+                <IconButton onClick={() => {handleSaveClick()}} sx={{color: '#6400fa'}} disabled={isEditing.demographicInfo === false}> <SaveOutlinedIcon /> </IconButton>
                 <IconButton onClick={() => {
                     handleEditClick("demographicInfo", !isEditing.demographicInfo);
                 }} 
@@ -326,18 +419,25 @@ const ProfilePage = () => {
           <Typography variant="h4">Team Affiliations</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          {affiliations.map(item => (<Accordion className={classes.accordion} key={item}>
+          {affiliations.map(item => (<Accordion className={classes.accordion} key={item.team_id}>
             <Box sx={{ display: "flex" }}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ flexGrow: 1 }}>
-                <Typography variant="h6">Team {item}</Typography>
+                <Typography variant="h6">{item.team_name}</Typography>
               </AccordionSummary>
-              <Box sx={{ alignSelf: 'center', marginRight: 2 }}>
-                <IconButton onClick={() => removeTeamAffiliations(item)} sx={{color: '#f04462'}}> <DeleteOutlineOutlinedIcon /> </IconButton>
-              </Box>
+              {/* <Box sx={{ alignSelf: 'center', marginRight: 2 }}>
+                
+              </Box> */}
             </Box>
             <AccordionDetails>
               <Stack spacing={2}>
-                <Box sx={{ backgroundColor: '#dfdfdf', padding: 3, borderRadius: 4 }}>
+                {item.members.map((member,index) => (<Box sx={{ backgroundColor: member.isAdmin ? '#adffad': '#dfdfdf', padding: 3, borderRadius: 4, display: 'flex', justifyContent: 'space-between' }} key={member.uid}>
+                  <Typography variant="body1" sx={{alignSelf: 'center'}}>{member.email}</Typography>
+                  {isAdmin === true && user.uid !== member.uid && <Box sx={{display: 'flex'}}>
+                  <IconButton onClick={() => modifyTeam(item.team_id, member.uid, "UPDATE",index)} sx={{color: '#f04462'}}> <AdminPanelSettingsIcon /> </IconButton>
+                  <IconButton onClick={() => modifyTeam(item.team_id, member.uid, "DELETE",index)} sx={{color: '#f04462'}}> <DeleteOutlineOutlinedIcon /> </IconButton>
+                    </Box>}
+                </Box>))}
+                {/* <Box sx={{ backgroundColor: '#dfdfdf', padding: 3, borderRadius: 4 }}>
                   <Typography variant="body1">username1</Typography>
                 </Box>
                 <Box sx={{ backgroundColor: '#dfdfdf', padding: 3, borderRadius: 4 }}>
@@ -345,7 +445,7 @@ const ProfilePage = () => {
                 </Box>
                 <Box sx={{ backgroundColor: '#dfdfdf', padding: 3, borderRadius: 4 }}>
                   <Typography variant="body1">username3</Typography>
-                </Box>
+                </Box> */}
               </Stack>
             </AccordionDetails>
           </Accordion>))}

@@ -21,7 +21,7 @@ export default function LoginForm() {
     });
 
     const handleTwitterLogin = () => {
-        signInWithPopup(auth, twitterprovider).then((result) => {
+        signInWithPopup(auth, twitterprovider).then(async (result) => {
             const { displayName, email, photoURL, uid } = result.user;
             const accessToken = result.user.stsTokenManager.accessToken;
 
@@ -32,34 +32,80 @@ export default function LoginForm() {
                     token: accessToken,
                     uid: uid,
                 })
-                navigate('/home', {
-                    state: {
-                        email: email,
-                        token: accessToken,
-                        uid: uid,
-                    },
-                });
+                localStorage.setItem('user', JSON.stringify(result.user));
+                await getTeamData();
+                await handleAppRedirect(result.user);
+                
             }
         }).catch((error) => {
             console.log(error.message);
         })
     }
 
+
+    const getTeamData = async () => {
+        let currentUser = auth.currentUser;
+        if(currentUser){
+            let idToken = await currentUser.getIdToken();
+            let response = await fetch("https://6418qzn2i7.execute-api.us-east-1.amazonaws.com/dev/app/team",{
+                method: "GET",
+                headers: {
+                    authorizationToken: idToken
+                }
+            });
+            let json = await response.json();
+            console.log(json);
+            if(json.status && Array.isArray(json.teamData) && json.teamData.length){
+                localStorage.setItem("team", JSON.stringify(json.teamData[0]));
+               
+            }
+
+        }
+    }
+    const handleAppRedirect = async (user) => {
+        if(auth.currentUser){
+            const idTokenResult = auth.currentUser.getIdTokenResult();
+            const customClaims = idTokenResult.claims;
+
+            console.log(customClaims);
+            if (customClaims && customClaims.admin === true) {
+                navigate('/admin', {
+                    state: {
+                        email: user.email, token: user.token,uid: user.uid
+                    },
+                });
+         
+            } else if(localStorage.getItem("team") && localStorage.getItem("user")){
+                console.log("here");
+                navigate('/home/gamesList', {
+                    state: {
+                        email: user.email, token: user.token,uid: user.uid
+                    },
+                });
+
+            } else if(localStorage.getItem("user")){
+                navigate("/home/addTeam");
+            }
+        }
+        
+    }  
     const handleGoogleLogin = () => {
-        signInWithPopup(auth, googleprovider).then((result) => {
+        signInWithPopup(auth, googleprovider).then(async (result) => {
             const { displayName, email, photoURL, uid } = result.user;
             const accessToken = result.user.stsTokenManager.accessToken;
 
             console.log(result.user)
             if (result.user) {
-
-                navigate('/home', {
-                    state: {
-                        email: email,
-                        token: accessToken,
-                        uid: uid,
-                    },
-                });
+                setResponse({
+                    email: email,
+                    token: accessToken,
+                    uid: uid,
+                })
+                localStorage.setItem('user', JSON.stringify(result.user));
+                await getTeamData();
+                await handleAppRedirect(result.user);
+            
+                    
             }
         }).catch((error) => {
             console.log(error.message);
@@ -89,7 +135,6 @@ export default function LoginForm() {
 
                 if (response.ok) {
                     localStorage.setItem('user', JSON.stringify(responseData));
-                    localStorage.setItem('token', responseData.token);
                     navigate('securityQuestion', {
                         state: {
                             claim: responseData.claim,
