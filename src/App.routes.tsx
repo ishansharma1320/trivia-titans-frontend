@@ -23,7 +23,7 @@ const router = createBrowserRouter([
     children: [
         {path: 'profile', element: <ProfilePage />},
         {path: 'admin', element: <AdminPanel />, children:[
-            { path: '', element: <Navigate to="games" /> }, 
+            { path: '', element: <Navigate to="games"  /> },
             {path: 'games', element: <GamePanel />},
             { path: 'games/view', element: <QuestionsPanel /> },
             {path: 'questions', element: <QuestionsPanel />}

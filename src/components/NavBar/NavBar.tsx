@@ -26,6 +26,17 @@ export default function NavBar({ isAuth }) {
     setAnchorEl(null);
   };
 
+    const handleProfile = () => {
+      navigate('/home/profile', {
+        state: {
+          claim: claim,
+          email: email,
+          token: token,
+          uid: uid,
+        }
+      })
+    }
+
   const handlelogout = async () => { // Mark the function as async
     try {
       const response = await fetch("https://login-kku3a2biga-uc.a.run.app/logout", {
@@ -34,7 +45,7 @@ export default function NavBar({ isAuth }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          token: token || "", // Use the token from the login page state or provide a default value
+          token: localStorage.getItem('token') || "", // Use the token from the login page state or provide a default value
         }),
       });
 
@@ -96,8 +107,7 @@ export default function NavBar({ isAuth }) {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={handleClose}>Profile</MenuItem>
-              <MenuItem onClick={handleClose}>My account</MenuItem>
+              <MenuItem onClick={handleProfile}>Profile</MenuItem>
               <MenuItem onClick={handlelogout}>Logout</MenuItem>
             </Menu>
           </div>

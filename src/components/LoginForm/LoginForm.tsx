@@ -88,7 +88,8 @@ export default function LoginForm() {
                 const responseData = await response.json();
 
                 if (response.ok) {
-                    // Redirect to "/auth/verify" if the response is successful
+                    localStorage.setItem('user', JSON.stringify(responseData));
+                    localStorage.setItem('token', responseData.token);
                     navigate('securityQuestion', {
                         state: {
                             claim: responseData.claim,

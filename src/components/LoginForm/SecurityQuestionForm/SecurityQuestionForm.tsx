@@ -3,6 +3,7 @@ import {useLocation, useNavigate} from 'react-router-dom';
 import { TextField, Button, Stack } from '@mui/material';
 import sharedCSSModule from '../../shared/css/shared.module.css';
 import {Simulate} from "react-dom/test-utils";
+import {auth} from "../../../../firebaseconfig";
 import error = Simulate.error;
 
 export default function SecurityQuestionForm() {
@@ -59,6 +60,22 @@ export default function SecurityQuestionForm() {
                         });
                     }
                     else {
+                        if(auth.currentUser) {
+                            let idtoken = await auth.currentUser.getIdToken(true);
+                            const response = await fetch('https://6418qzn2i7.execute-api.us-east-1.amazonaws.com/dev/app/team', {
+                                method: 'GET',
+                                headers: {
+                                    'authorizationToken': idtoken,
+                                }
+                            });
+                            console.log(response);
+                        }
+                        const responseData = await response.json();
+                        console.log("Response: "+ responseData.team);
+                        if (responseData.teamData && responseData.teamData.length > 0) {
+                            localStorage.setItem('team', responseData.team);
+                            navigate('/home/team')
+                        }
                         navigate('/home', {
                             state: {
                                 claim: claim,
