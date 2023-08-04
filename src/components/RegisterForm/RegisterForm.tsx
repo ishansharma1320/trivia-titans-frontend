@@ -35,34 +35,13 @@ const RegisterForm = () => {
           body: JSON.stringify({email})
         })
         console.log(response);
+        handleAppRedirect()
         return response;
       }
     
       
-      const handleAppRedirect = async (user) => {
-        if(auth.currentUser){
-            const idTokenResult = auth.currentUser.getIdTokenResult();
-            const customClaims = idTokenResult.claims;
-
-            console.log(customClaims);
-            if (customClaims && customClaims.admin === true) {
-                navigate('/admin', {
-                    state: {
-                        email: user.email, token: user.token,uid: user.uid
-                    },
-                });
-         
-            } else {
-                console.log("here");
-                navigate('/home/addTeam', {
-                    state: {
-                        email: user.email, token: user.token,uid: user.uid
-                    },
-                });
-
-            }
-        }
-        
+      const handleAppRedirect = async () => {
+        navigate('/auth/login')
     }  
     const handleGoogleSignUp = async () => {
         

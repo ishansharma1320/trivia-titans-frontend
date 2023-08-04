@@ -24,32 +24,53 @@ export default function SecurityQuestionForm() {
 
 
     const handleAppRedirect = async (user) => {
-        if(auth.currentUser){
-            const idTokenResult = auth.currentUser.getIdTokenResult();
-            const customClaims = idTokenResult.claims;
+        if (auth.currentUser) {
+            try {
+                const userData = localStorage.getItem('user');
+                const userObject = JSON.parse(userData);
+                const tokenValue = userObject.token;
+                const data = {
+                    token: tokenValue,
+                }
 
-            console.log(customClaims);
-            if (customClaims && customClaims.admin === true) {
-                navigate('/admin', {
-                    state: {
-                        email: user.email, token: user.token,uid: user.uid
+                console.log("Token value:", tokenValue);
+                const response = await fetch('https://login-kku3a2biga-uc.a.run.app/check/claim', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
                     },
+                    body: JSON.stringify(data),
                 });
-         
-            } else if(localStorage.getItem("team") && localStorage.getItem("user")){
-                console.log("here");
-                navigate('/home/gamesList', {
-                    state: {
-                        email: user.email, token: user.token,uid: user.uid
-                    },
-                });
-
-            } else if(localStorage.getItem("user")){
-                navigate("/home/addTeam");
+                const responseData = await response.json();
+                if (responseData.claim === 'admin') {
+                    navigate('/home/admin/games', {
+                        state: {
+                            email: user.email,
+                            token: user.token,
+                            uid: user.uid,
+                        },
+                    });
+                } else if (localStorage.getItem("team") && localStorage.getItem("user")) {
+                    console.log("here");
+                    navigate('/home/gamesList', {
+                        state: {
+                            email: user.email,
+                            token: user.token,
+                            uid: user.uid,
+                        },
+                    });
+                } else if (localStorage.getItem("user")) {
+                    navigate("/home/addTeam");
+                }
+                else {
+                    navigate('/auth/login');
+                }
+            } catch (error) {
+                console.error("Error occurred while logging out:", error);
             }
         }
-        
-    }  
+    }
+
 
     const getTeamData = async () => {
         let currentUser = auth.currentUser;
