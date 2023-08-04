@@ -120,8 +120,8 @@ const navigate = useNavigate();
                   <Typography variant="body2" color="text.secondary">Difficulty: {game.difficulty}</Typography>
                   <Typography variant="body2" color="text.secondary">Number of Questions: {game.numberOfQuestions}</Typography>
                   <Typography variant="body2" color="text.secondary">Total Time: {totalTimeInMinutes} minutes</Typography> {/* Displaying total time */}
-                  <Typography variant="body2" color="text.secondary">Time to Start: {game.time_to_start}</Typography>
-                  <Typography variant="body2" color="text.secondary">Participants: {game.participants}</Typography>
+                  {/* <Typography variant="body2" color="text.secondary">Time to Start: {game.time_to_start}</Typography>
+                  <Typography variant="body2" color="text.secondary">Participants: {game.participants}</Typography> */}
                 </CardContent>
                 <CardActions>
                   <Button size="small" variant="contained" onClick={() => setSelectedGame({ id: game.id, name: game.gameName })}>Join</Button>
