@@ -11,6 +11,11 @@ import GamePanel from './components/AdminPanel/GamePanel/GamePanel';
 import QuestionsPanel from './components/AdminPanel/QuestionsPanel/QuestionsPanel';
 import QuestionsTable from './components/AdminPanel/QuestionsPanel/QuestionsTable';
 import SecurityQuestionForm from './components/LoginForm/SecurityQuestionForm/SecurityQuestionForm';
+import GamesList  from './components/TriviaLobby/GamesList';
+import QuizGame from './components/GameExperience/QuizGame';
+import TeamForm from './components/Teams/TeamForm';
+import ForbiddenError from './components/ErrorPages/ForbiddenError';
+import InternalServerError from './components/ErrorPages/InternalServerError';
 const router = createBrowserRouter([
     {path: '/auth', element: <AuthLayout />,
     children: [
@@ -21,6 +26,9 @@ const router = createBrowserRouter([
     ]},
     {path: '/home', element: <HomeLayout />,
     children: [
+        {path: 'gamesList', element: <GamesList />},
+        {path: 'quizgame/:gameId', element : <QuizGame /> },
+        {path: 'addTeam', element:<TeamForm/> },
         {path: 'profile', element: <ProfilePage />},
         {path: 'admin', element: <AdminPanel />, children:[
             { path: '', element: <Navigate to="games" /> }, 
@@ -30,7 +38,10 @@ const router = createBrowserRouter([
         ]},
         // {path: '/forgotPassword', element: <ForgotPasswordForm />},
         // {path: '/register', element: <RegisterForm />}
-    ]}
+    ]},
+
+    {path:'/forbidden', element:<ForbiddenError/>},
+    {path:'/serverError', element:<InternalServerError/>}
 
   ])
 
