@@ -1,20 +1,13 @@
-# Use a base image with Node.js installed
-FROM node:14
-
-# Set the working directory in the container
+FROM node:14-alpine as react-build
 WORKDIR /app
-
-# Copy package.json and package-lock.json to the working directory
-COPY . /app
-
-# Install dependencies
+COPY . ./
 RUN npm install --legacy-peer-deps
-
-# Build the React app
-RUN npm run build
-
-# Set the command to start the server
-CMD ["npm", "run", "dev"]
-
-# Expose port 5173
-EXPOSE 5173
+# RUN npm run build
+# FROM nginx:alpine
+# COPY nginx.conf /etc/nginx/conf.d/configfile.template
+# COPY --from=react-build /app/dist /usr/share/nginx/html
+# ENV PORT 8080
+# ENV HOST 0.0.0.0
+# EXPOSE 8080
+# CMD sh -c "envsubst '\$PORT \$HOST' < /etc/nginx/conf.d/configfile.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+CMD sh -c "npm run dev -- --host 0.0.0.0 --port 8080"
