@@ -17,7 +17,7 @@ interface Question {
 interface TeamDetails {
   team_name: string;
   team_id: string;
-  members: any[];
+  members: TeamMember[];
 }
 
 const QuizGame = () => {
@@ -30,8 +30,8 @@ const QuizGame = () => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState<boolean | null>(null);
   const teamDetailsString = localStorage.getItem('team');
-  const teamDetails = teamDetailsString ? JSON.parse(teamDetailsString) as any : null;
-  const location = useLocation();
+  const teamDetails = teamDetailsString ? JSON.parse(teamDetailsString) as TeamDetails : null;
+  const location = useLocation<{ gameName: string }>();
   const gameName = location.state?.gameName;
   const navigate = useNavigate();
   useEffect(() => {

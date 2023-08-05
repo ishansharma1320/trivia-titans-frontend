@@ -23,11 +23,15 @@ export default function LoginForm() {
     const handleTwitterLogin = () => {
         signInWithPopup(auth, twitterprovider).then(async (result) => {
             const { displayName, email, photoURL, uid } = result.user;
-            const accessToken = result.user["stsTokenManager"].accessToken;
+            const accessToken = result.user.stsTokenManager.accessToken;
 
             console.log(result.user)
             if (result.user) {
-                setResponse({email: email,token: accessToken,uid: uid, claim: response.claim, photoURL: response.photoURL})
+                setResponse({
+                    email: email,
+                    token: accessToken,
+                    uid: uid,
+                })
                 localStorage.setItem('user', JSON.stringify(result.user));
                 await getTeamData();
                 await handleAppRedirect(result.user);
@@ -88,11 +92,15 @@ export default function LoginForm() {
     const handleGoogleLogin = () => {
         signInWithPopup(auth, googleprovider).then(async (result) => {
             const { displayName, email, photoURL, uid } = result.user;
-            const accessToken = result.user["stsTokenManager"].accessToken;
+            const accessToken = result.user.stsTokenManager.accessToken;
 
             console.log(result.user)
             if (result.user) {
-                setResponse({email: email,token: accessToken,uid: uid, claim: response.claim, photoURL: response.photoURL})
+                setResponse({
+                    email: email,
+                    token: accessToken,
+                    uid: uid,
+                })
                 localStorage.setItem('user', JSON.stringify(result.user));
                 await getTeamData();
                 await handleAppRedirect(result.user);
