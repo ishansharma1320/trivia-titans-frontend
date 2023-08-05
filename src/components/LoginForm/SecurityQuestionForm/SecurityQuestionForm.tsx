@@ -22,52 +22,26 @@ export default function SecurityQuestionForm() {
         uid: '',
     });
 
-
     const handleAppRedirect = async (user) => {
-        if (auth.currentUser) {
-            try {
-                const userData = localStorage.getItem('user');
-                const userObject = JSON.parse(userData);
-                const tokenValue = userObject.token;
-                const data = {
-                    token: tokenValue,
-                }
-
-                console.log("Token value:", tokenValue);
-                const response = await fetch('https://login-kku3a2biga-uc.a.run.app/check/claim', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                });
-                const responseData = await response.json();
-                if (responseData.claim === 'admin') {
-                    navigate('/home/admin/games', {
-                        state: {
-                            email: user.email,
-                            token: user.token,
-                            uid: user.uid,
-                        },
-                    });
-                } else if (localStorage.getItem("team") && localStorage.getItem("user")) {
-                    console.log("here");
-                    navigate('/home/gamesList', {
-                        state: {
-                            email: user.email,
-                            token: user.token,
-                            uid: user.uid,
-                        },
-                    });
-                } else if (localStorage.getItem("user")) {
-                    navigate("/home/addTeam");
-                }
-                else {
-                    navigate('/auth/login');
-                }
-            } catch (error) {
-                console.error("Error occurred while logging out:", error);
-            }
+        console.log("handleAppRedirect", user.claimValue);
+        if (user.claimValue === 'admin') {
+            navigate('/home/admin/games', {
+                state: {
+                    email: user.email,
+                    token: user.token,
+                    uid: user.uid,
+                },
+            });
+        } else if (localStorage.getItem("team") && localStorage.getItem("user")) {
+            navigate('/home/gamesList', {
+                state: {
+                    email: user.email,
+                    token: user.token,
+                    uid: user.uid,
+                },
+            });
+        } else {
+            navigate("/home/addTeam");
         }
     }
 
@@ -101,7 +75,7 @@ export default function SecurityQuestionForm() {
             };
 
             try {
-                const response = await fetch('https://login-kku3a2biga-uc.a.run.app/checkanswer', {
+                const answerresponse = await fetch('https://login-kku3a2biga-uc.a.run.app/checkanswer', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -109,16 +83,27 @@ export default function SecurityQuestionForm() {
                     body: JSON.stringify(data),
                 });
 
-                const responseData = await response.json();
-                if (response.ok) {
+                const answerresponseData = await answerresponse.json();
+                console.log("answerresponseData:", answerresponseData)
+                if (answerresponseData.response === 'Answer is correct.') {
                     setResponse({
                         claim: claim,
                         email: email,
                         token: token,
                         uid: uid,
                     });
+                    console.log("calling team")
                     await getTeamData();
-                    await handleAppRedirect({email, token, uid});
+                    console.log("calling app redirect")
+                    const userData = localStorage.getItem('user');
+                    const userObject = JSON.parse(userData);
+                    const tokenValue = userObject.token;
+                    const emailValue = userObject.email;
+                    const uidValue = userObject.uid;
+                    const claimValue = userObject.claim;
+
+                    await handleAppRedirect({emailValue, tokenValue, uidValue, claimValue});
+                    console.log("after app redirect")
                     
                 }
                  else {
@@ -131,7 +116,7 @@ export default function SecurityQuestionForm() {
         [secQuestion, uid]
     );
 
-    useEffect(() => {
+    useEffect(() =>{
         async function fetchSecurityQuestion() {
             if (!uid) {
                 // Handle the case when uid is not available (location.state is null)

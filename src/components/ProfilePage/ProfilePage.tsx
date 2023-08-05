@@ -98,31 +98,69 @@ const ProfilePage = () => {
     fname: 'John',
     lname: 'Doe',
     email: 'johndoe@example.com',
-    password: '12345678',
     gender: 'M',
     dob: new Date(),
     city: 'Halifax',
-    country: 'Canada'
+    country: 'Canada',
+    profile_pic: '',
+    uid : '',
   });
 
   useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        let user = localStorage.getItem('user');
+        if (user) {
+          user = JSON.parse(user);
+          const response = await fetch(
+              'https://us-central1-starry-lattice-386517.cloudfunctions.net/get-user-by-uid',
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid: user['uid'] }),
+              }
+          );
+          const data = await response.json();
+          console.log('User data:', data);
+
+          setFormData({
+            username: data.username || '',
+            fname: data.fname || '',
+            lname: data.lname || '',
+            email: data.email || '',
+            gender: data.gender || '',
+            dob: new Date(data.dob) || null,
+            city: data.city || '',
+            country: data.country || '',
+            profile_pic: data.profile_pic || '',
+            uid: user['uid'],
+          });
+
+          if (data.profile_pic) {
+            setValue(data.profile_pic);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
     const getTeamData = async () => {
       let user = localStorage.getItem("user");
-      
+
       let team = localStorage.getItem("team");
+      const teamdata1 = JSON.parse(team)
+      const userdata1 = JSON.parse(user)
       if (team && user) {
-        team = JSON.parse(team)
-        user = JSON.parse(user)
         setAffiliations([team]);
         setUser(user);
-        
-          
-          let member = team.members.find(item=>item.uid === user.uid);
+
+
+          let member = teamdata1.members.find(item=>item.uid === userdata1.uid);
           if(member && member.isAdmin){
             setIsAdmin(true);
           }
-        
-        
+
+
       } else if(user){
         let currentUser = auth.currentUser;
         if (currentUser) {
@@ -137,9 +175,9 @@ const ProfilePage = () => {
           console.log(json);
           if (json.status && Array.isArray(json.teamData) && json.teamData.length) {
             localStorage.setItem("team", JSON.stringify(json.teamData[0]));
-            
-              
-              let member = json.teamData[0].members.find(item => item.uid === user.uid);
+
+
+              let member = json.teamData[0].members.find(item => item.uid === userdata1.uid);
               if (member && member.isAdmin) {
                 setIsAdmin(true);
                 setUser(user);
@@ -150,9 +188,8 @@ const ProfilePage = () => {
 
         }
       }
-
-    
-  getTeamData();
+    fetchUserData();
+    getTeamData();
   }, []);
 
 
@@ -179,22 +216,45 @@ const ProfilePage = () => {
   };
 
   const handleSaveClick = async () =>{
-    let user = localStorage.getItem("user");
-    if(user){
-      user = JSON.parse(user);
-      const response = await fetch("https://us-central1-starry-lattice-386517.cloudfunctions.net/update-user-by-uid", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: user['uid'], ...formData })
-      })
-      let json = await response.json();
-      console.log(json);
+    try {
+      let user = localStorage.getItem("user");
+      if (user) {
+        const userdata = JSON.parse(user);
+        const requestBody = {
+          city: formData.city,
+          country: formData.country,
+          dob: formData.dob,
+          email: userdata.email,
+          fname: formData.fname,
+          gender: formData.gender,
+          lname: formData.lname,
+          profile_pic: formData.profile_pic,
+          uid: userdata['uid'],
+          username: formData.username,
+        };
+
+        user = JSON.parse(user);
+        const response = await fetch("https://us-central1-starry-lattice-386517.cloudfunctions.net/update-user-by-uid", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(requestBody)
+        })
+        let json = await response.json();
+        console.log(json);
+
+        if (json['response'] === "User details updated successfully.") {
+          setIsEditing((prevIsEditing) => ({ ...prevIsEditing, profileInfo: false }));
+        }
+      }
     }
-    
+    catch (error) {
+        console.error("Error updating user data:", error);
+    }
   }
 
   const handleFormChange = (event) => {
     const { name, value } = event.target;
+
     setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
   };
 
@@ -330,13 +390,53 @@ const ProfilePage = () => {
                 <TextField onChange={(event) => {
 
                     handleFormChange(event);
-                }} value={formData['email'] || ''} fullWidth label="Email Address" id="email" name="email" 
-                disabled={true}/>
+                }} value={formData['email'] || ''} fullWidth label="Email Address" id="email" name="email"
+                   disabled={true}
+                  />
                 <TextField onChange={(event) => {
 
-                    handleFormChange(event);
-                }} type="password" value={formData['password'] || ''} fullWidth label="Password" id="password" name="password" 
-                disabled={isEditing.profileInfo === false}/>
+                  handleFormChange(event);
+                  handleAvatarContentChange(event);
+                }} value={formData['city'] || ''} fullWidth label="City" id="city" name="city"
+                 onBlur={(event) => {
+                   handleAvatarContentChange(event)
+                 }}
+                 disabled={isEditing.profileInfo === false}
+                />
+
+                <TextField onChange={(event) => {
+
+                  handleFormChange(event);
+                  handleAvatarContentChange(event);
+                }} value={formData['country'] || ''} fullWidth label="Country" id="country" name="country"
+                 onBlur={(event) => {
+                   handleAvatarContentChange(event)
+                 }}
+                 disabled={isEditing.profileInfo === false}
+                />
+
+                <TextField onChange={(event) => {
+
+                  handleFormChange(event);
+                  handleAvatarContentChange(event);
+                }} value={formData['gender'] || ''} fullWidth label="Gender" id="gender" name="gender"
+                           onBlur={(event) => {
+                             handleAvatarContentChange(event)
+                           }}
+                           disabled={isEditing.profileInfo === false}
+                />
+
+                <TextField onChange={(event) => {
+
+                  handleFormChange(event);
+                  handleAvatarContentChange(event);
+                }} value={formData['dob'] || ''} fullWidth label="DOB" id="dob" name="dob"
+                 onBlur={(event) => {
+                   handleAvatarContentChange(event)
+                 }}
+                 disabled={isEditing.profileInfo === false}
+                />
+
 
                 <Stack direction="row" spacing={2} alignItems="center">
                   {value === null ? <Avatar sx={{ bgcolor: deepOrange[500] }}>{Object.values(defaultAvatarContent).join('')}</Avatar> : <Avatar src={value} alt="Profile Pic" />}
@@ -356,57 +456,6 @@ const ProfilePage = () => {
                     disabled={isEditing.profileInfo === false}
                   />
                 </Stack>
-
-              </Stack>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion className={classes.accordion} expanded={expandAccordion.demographicInfo}>
-          <Box sx={{ display: "flex" }}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ flexGrow: 1 }} onClick={()=>{toggleAccordion("demographicInfo",!expandAccordion.demographicInfo)}}>
-              <Typography variant="h4">Demographic Info</Typography>
-            </AccordionSummary>
-            <Box sx={{ alignSelf: 'center', marginRight: 2 }}>
-                <IconButton onClick={() => {handleSaveClick()}} sx={{color: '#6400fa'}} disabled={isEditing.demographicInfo === false}> <SaveOutlinedIcon /> </IconButton>
-                <IconButton onClick={() => {
-                    handleEditClick("demographicInfo", !isEditing.demographicInfo);
-                }} 
-                sx={{color: 'red'}}> <EditOutlinedIcon /> </IconButton>
-              </Box>
-            </Box>
-            <AccordionDetails>
-              <Stack spacing={2}>
-                <FormControl fullWidth disabled={isEditing.demographicInfo === false}>
-                  <InputLabel>Gender</InputLabel>
-                  <Select
-                    value={formData['gender'] || ''}
-                    label="Gender"
-                    name="gender"
-                    onChange={(event) => {
-
-                        handleFormChange(event);
-                    }}
-
-                  >
-                    <MenuItem value={"M"}>Male</MenuItem>
-                    <MenuItem value={"F"}>Female</MenuItem>
-                    <MenuItem value={"Other"}>Other</MenuItem>
-                  </Select>
-                </FormControl>
-                <Stack direction="row" spacing={2} alignItems="center">
-
-                  <Typography variant="button" gutterBottom> DOB</Typography>
-                  <DatePicker onChange={(event) => {
-                    let passingEvent = { target: { name: "dob", value: event } }
-                    handleFormChange(passingEvent);
-                  }} value={formData['dob'] || ''} disabled={isEditing.demographicInfo === false}/>
-                </Stack>
-                <TextField onChange={(event) => {
-                    handleFormChange(event);
-                }} value={formData['city'] || ''} fullWidth label="City" id="city" name="city" disabled={isEditing.demographicInfo === false}/>
-
-                <TextField onChange={(event) => {
-                    handleFormChange(event);
-                }} value={formData['country'] || ''} fullWidth label="Country" id="country" name="country" disabled={isEditing.demographicInfo === false}/>
 
               </Stack>
             </AccordionDetails>
