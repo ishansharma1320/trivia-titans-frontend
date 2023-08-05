@@ -117,7 +117,7 @@ const ProfilePage = () => {
         setUser(user);
         
           
-          let member = team.members.find(item=>item.uid === user.uid);
+          let member = team["members"].find(item=>item.uid === user["uid"]);
           if(member && member.isAdmin){
             setIsAdmin(true);
           }
@@ -139,7 +139,7 @@ const ProfilePage = () => {
             localStorage.setItem("team", JSON.stringify(json.teamData[0]));
             
               
-              let member = json.teamData[0].members.find(item => item.uid === user.uid);
+              let member = json.teamData[0].members.find(item => item.uid === user["uid"]);
               if (member && member.isAdmin) {
                 setIsAdmin(true);
                 setUser(user);

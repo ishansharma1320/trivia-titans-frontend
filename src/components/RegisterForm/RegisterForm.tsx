@@ -47,7 +47,7 @@ const RegisterForm = () => {
         
         signInWithPopup(auth, googleprovider).then(async (result) => {
             const {displayName, email, photoURL, uid} = result.user;
-            const accessToken = result.user.stsTokenManager.accessToken;
+            const accessToken = result.user["stsTokenManager"].accessToken;
 
             console.log(result.user)
             const data = {
@@ -70,7 +70,7 @@ const RegisterForm = () => {
                 console.log(response);
                 await createSubscription(data.email);
                 if (response.ok) {
-                    await handleAppRedirect(result.user)
+                    await handleAppRedirect()
                 }
             }
         }).catch((error) => {
@@ -81,7 +81,7 @@ const RegisterForm = () => {
     const handleTwitterSignUp = () => {
         signInWithPopup(auth, twitterprovider).then(async (result) => {
             const {displayName, email, photoURL, uid} = result.user;
-            const accessToken = result.user.stsTokenManager.accessToken;
+            const accessToken = result.user["stsTokenManager"].accessToken;
 
             console.log(result.user)
             const data = {
@@ -102,7 +102,7 @@ const RegisterForm = () => {
                 await createSubscription(data.email);
                 console.log(response);
                 if (response.ok) {
-                    await handleAppRedirect(result.user)
+                    await handleAppRedirect();
                 }
             }
         }).catch((error) => {
@@ -140,28 +140,28 @@ const RegisterForm = () => {
         try {
             // Format the formData object to match the API request body
             const requestBody = {
-                "username": formData.username,
-                "email": formData.email, // Use a temporary email, as it's not provided in the form data
-                "password": formData.password, // Use a strong password here
-                "fname": formData.fname,
-                "lname": formData.lname,
-                "gender": formData.gender, // Replace with the actual gender value from the formData if it's different
-                "dob": formData.dob, // Replace with the actual date of birth value from the formData
-                "city": formData.city, // Replace with the actual city value from the formData
-                "country": formData.country, // Replace with the actual country value from the formData
-                "profile_pic": formData.profile_pic, // As the API request expects an empty string for profile_pic
+                "username": formData["username"],
+                "email": formData["email"], // Use a temporary email, as it's not provided in the form data
+                "password": formData["password"], // Use a strong password here
+                "fname": formData["fname"],
+                "lname": formData["lname"],
+                "gender": formData['gender'], // Replace with the actual gender value from the formData if it's different
+                "dob": formData['dob'], // Replace with the actual date of birth value from the formData
+                "city": formData['city'], // Replace with the actual city value from the formData
+                "country": formData['country'], // Replace with the actual country value from the formData
+                "profile_pic": formData['profile_pic'], // As the API request expects an empty string for profile_pic
                 "security_questions": [
                     {
                         "question": "What city were you born in?",
-                        "answer": formData.sec_q1_ans // Replace with the actual answer value from the formData
+                        "answer": formData['sec_q1_ans'] // Replace with the actual answer value from the formData
                     },
                     {
                         "question": "In what city or town did your parents meet?",
-                        "answer": formData.sec_q2_ans // Replace with the actual answer value from the formData
+                        "answer": formData['sec_q2_ans'] // Replace with the actual answer value from the formData
                     },
                     {
                         "question": "What was the first concert you attended?",
-                        "answer": formData.sec_q3_ans // Replace with the actual answer value from the formData
+                        "answer": formData['sec_q3_ans'] // Replace with the actual answer value from the formData
                     }
                 ]
             };
@@ -177,7 +177,7 @@ const RegisterForm = () => {
                 .then(response => response.json())
                 .then(async (data) => {
                     if (data.status == true && data.response == "User registered successfully.") {
-                        await createSubscription(formData.email);
+                        await createSubscription(formData['email']);
                         // navigate('/auth/login')
                     }
                     else {
